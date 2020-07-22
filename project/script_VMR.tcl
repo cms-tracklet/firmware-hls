@@ -3,6 +3,9 @@
 #   vivado_hls -p vmrouter
 # WARNING: this will wipe out the original project by the same name
 
+# get some information about the executable and environment
+source env_hls.tcl
+
 # create new project (deleting any existing one of same name)
 open_project -reset vmrouter
 
@@ -12,7 +15,11 @@ set_top VMRouterTop
 add_files ../TrackletAlgorithm/VMRouterTop.cc -cflags "$CFLAGS"
 add_files -tb ../TestBenches/VMRouter_test.cpp -cflags "$CFLAGS"
 
-open_solution "solution1"
+if { ([string first "vitis" $exe] > -1) && ($year > 2019) } {
+    open_solution "solution1" -flow_target vivado
+} else {
+    open_solution "solution1"
+}
 
 # Define FPGA, clock frequency & common HLS settings.
 source settings_hls.tcl
@@ -22,7 +29,14 @@ add_files -tb ../emData/VMR/tables/
 add_files -tb ../emData/VMR/VMR_L1PHIE/
 add_files -tb ../emData/wires_hourglass.dat
 
-csim_design -compiler gcc -mflags "-j8"
+switch -glob -- $exe {
+    *vitis* {
+        csim_design -mflags "-j8"
+    }
+    default {
+        csim_design -compiler gcc -mflags "-j8"
+    }
+}
 csynth_design
 cosim_design
 export_design -format ip_catalog

@@ -4,6 +4,7 @@
 #ifndef TestBenches_FileReadUtility_h
 #define TestBenches_FileReadUtility_h
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <string>
