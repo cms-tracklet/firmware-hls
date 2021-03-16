@@ -33,7 +33,7 @@ int main()
   // open input files
   cout << "Open files..." << endl;
 
-  const string dir = "TB_L1L2";
+  const string dir = "FT_L1L2";
 
   ifstream fin_tpar0;
   if (not openDataFile(fin_tpar0, dir + "/TrackletParameters_TPAR_L1L2A_04.dat")) return -1;

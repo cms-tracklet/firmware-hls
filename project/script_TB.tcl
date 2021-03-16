@@ -18,7 +18,7 @@ open_solution "solution1"
 source settings_hls.tcl
 
 # data files
-add_files -tb ../emData/TB/TB_L1L2/
+add_files -tb ../emData/FT/FT_L1L2/
 
 csim_design -compiler gcc -mflags "-j8"
 csynth_design
