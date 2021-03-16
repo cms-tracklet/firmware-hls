@@ -111,6 +111,10 @@ TC-quality-check:
   <<: *template_quality-check
   variables:
     CLANG_TIDY_FILES: '../TestBenches/TrackletCalculator_* ../TrackletAlgorithm/TrackletCalculatorTop.cc'
+TP-quality-check:
+  <<: *template_quality-check
+  variables:
+    CLANG_TIDY_FILES: '../TestBenches/TrackletProcessor_L1L2D_test.cpp ../TrackletAlgorithm/TrackletProcessor.cc'
 PR-quality-check:
   <<: *template_quality-check
   variables:
@@ -148,6 +152,11 @@ TC-hls-build:
   variables:
     VIVADO_VERSION: "2019.2"
     PROJ_NAME: "TC"
+TP-hls-build:
+  <<: *template_hls-build
+  variables:
+    VIVADO_VERSION: "2019.2"
+    PROJ_NAME: "TP"
 PR-hls-build:
   <<: *template_hls-build
   variables:
