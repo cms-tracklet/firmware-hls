@@ -28,13 +28,13 @@ constexpr int sector = 4; //  Specifies the sector
 
 // Maximum number of memory "copies" for this Phi region
 // Note: can't use 0 if we don't have any memories of a certain type. Use 1.
-constexpr int maxASCopies(6); // Allstub memory
+constexpr int maxASCopies(4); // Allstub memory
 constexpr int maxTEICopies(5); // TE Inner memories
 constexpr int maxOLCopies(3); // TE Inner Overlap memories
 constexpr int maxTEOCopies(1); // TE Outer memories
 
 // Number of inputs
-constexpr int numInputs(4); // Total number of input memories
+constexpr int numInputs(7); // Total number of input memories
 constexpr int numInputsDiskPS(0); // Only used for disks
 constexpr int numInputsDisk2S(numInputs-numInputsDiskPS); // Only used for disks
 
@@ -45,7 +45,7 @@ constexpr int bendCutTableSize(8); // Number of entries in each bendcut table. C
 // Variables that don't need manual changing
 
 #if kLAYER == kDISK
-#error kLAYER and kDISK can't be the sam
+#error kLAYER and kDISK can not be the sam
 #elif kLAYER > 0
 	// Number of VMs
 	constexpr int nvmME = nvmmelayers[kLAYER-1]; // ME memories

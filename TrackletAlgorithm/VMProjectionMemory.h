@@ -15,11 +15,12 @@ public:
     // Bit sizes for VMProjectionMemory fields
     kVMProjIsPSSeedSize = 1,
     kVMProjRinvSize = 5,
+    kVMProjFinePhiSize = 3,
     kVMProjFineZSize = 4,
     kVMProjZBinSize = MEBinsBits+1,
     kVMProjIndexSize = 7,
     // Bit size for full VMProjectionMemory
-    kVMProjectionSize = kVMProjIsPSSeedSize + kVMProjRinvSize + kVMProjFineZSize + kVMProjZBinSize + kVMProjIndexSize
+    kVMProjectionSize = kVMProjIsPSSeedSize + kVMProjRinvSize + kVMProjFineZSize + kVMProjFinePhiSize + kVMProjZBinSize + kVMProjIndexSize
   };
 };
 
@@ -31,11 +32,12 @@ public:
     // Bit sizes for VMProjectionMemory fields
     kVMProjIsPSSeedSize = 0,
     kVMProjRinvSize = 5,
+    kVMProjFinePhiSize = 3,
     kVMProjFineZSize = 4,
     kVMProjZBinSize = MEBinsBits+1+1,
     kVMProjIndexSize = 7,
     // Bit size for full VMProjectionMemory
-    kVMProjectionSize = kVMProjIsPSSeedSize + kVMProjRinvSize + kVMProjFineZSize + kVMProjZBinSize + kVMProjIndexSize
+    kVMProjectionSize = kVMProjIsPSSeedSize + kVMProjRinvSize + kVMProjFineZSize + kVMProjFinePhiSize + kVMProjZBinSize + kVMProjIndexSize
   };
 };
 
@@ -52,7 +54,9 @@ public:
     
     kVMProjRinvLSB = kVMProjIsPSSeedMSB + 1,
     kVMProjRinvMSB = kVMProjRinvLSB + VMProjectionBase<VMProjType>::kVMProjRinvSize - 1,
-    kVMProjFineZLSB = kVMProjRinvMSB + 1,
+    kVMProjFinePhiLSB = kVMProjRinvMSB + 1,
+    kVMProjFinePhiMSB = kVMProjFinePhiLSB + VMProjectionBase<VMProjType>::kVMProjFinePhiSize - 1,
+    kVMProjFineZLSB = kVMProjFinePhiMSB + 1,
     kVMProjFineZMSB = kVMProjFineZLSB + VMProjectionBase<VMProjType>::kVMProjFineZSize - 1,
     kVMProjZBinLSB = kVMProjFineZMSB + 1,
     kVMProjZBinMSB = kVMProjZBinLSB + VMProjectionBase<VMProjType>::kVMProjZBinSize - 1,
@@ -63,6 +67,7 @@ public:
   typedef ap_uint<VMProjectionBase<VMProjType>::kVMProjIndexSize> VMPID;
   typedef ap_uint<VMProjectionBase<VMProjType>::kVMProjZBinSize> VMPZBIN;
   typedef ap_uint<VMProjectionBase<VMProjType>::kVMProjFineZSize> VMPFINEZ;
+  typedef ap_uint<VMProjectionBase<VMProjType>::kVMProjFinePhiSize> VMPFINEPHI;
   typedef ap_uint<VMProjectionBase<VMProjType>::kVMProjRinvSize> VMPRINV;
 	
   typedef ap_uint<VMProjectionBase<VMProjType>::kVMProjectionSize> VMProjData;
@@ -73,15 +78,15 @@ public:
   {}
 
   // This constructor is only used for projections in BARREL
-  VMProjection(const VMPID id, const VMPZBIN zbin, const VMPFINEZ finez, const VMPRINV rinv, const bool ps):
-    data_( ((((id,zbin),finez),rinv),ps) )
+  VMProjection(const VMPID id, const VMPZBIN zbin, const VMPFINEZ finez, const VMPFINEPHI finephi, const VMPRINV rinv, const bool ps):
+    data_( (id, zbin, finez, finephi, rinv, ps) )
   {
     static_assert(VMProjType == BARREL, "Constructor should only be used for BARREL projections");
   }
 
   // This constructor is only used for projections in DISK
-  VMProjection(const VMPID id, const VMPZBIN zbin, const VMPFINEZ finez, const VMPRINV rinv):
-    data_( (((id,zbin),finez),rinv) )
+  VMProjection(const VMPID id, const VMPZBIN zbin, const VMPFINEZ finez, const VMPFINEPHI finephi, const VMPRINV rinv):
+    data_( (id, zbin ,finez , finephi, rinv) )
   {
     static_assert(VMProjType == DISK, "Constructor should only be used for DISK projections");
   }
@@ -114,6 +119,10 @@ public:
   VMPFINEZ getFineZ() const {
     return data_.range(kVMProjFineZMSB,kVMProjFineZLSB);
   }
+
+  VMPFINEPHI getFinePhi() const {
+    return data_.range(kVMProjFinePhiMSB,kVMProjFinePhiLSB);
+  }
   
   VMPRINV getRInv() const {
     return data_.range(kVMProjRinvMSB,kVMProjRinvLSB);
@@ -136,6 +145,10 @@ public:
   
   void setFineZ(const VMPFINEZ finez) {
     data_.range(kVMProjFineZMSB,kVMProjFineZLSB) = finez;
+  }
+
+  void setFinePhi(const VMPFINEPHI finephi) {
+    data_.range(kVMProjFinePhiMSB,kVMProjFinePhiLSB) = finephi;
   }
   
   void setRInv(const VMPRINV rinv) {

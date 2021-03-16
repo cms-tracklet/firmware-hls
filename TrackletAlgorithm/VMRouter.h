@@ -10,8 +10,6 @@
 // Each memory type contain different bits of the same stub.
 // AllStub and TE memories has several versions/copies of the VM.
 
-// Assumes at most 4 inputs in the layers, and 4 (PS) + 2 (2S) inputs in the disks
-
 // NOTE: Nothing in VMRouter.h needs to be changed to run a different phi region
 
 
@@ -72,14 +70,14 @@ constexpr float maxvmolbins = 1 << nbits_maxvmol; // Overlap
 constexpr int nbitsphiraw = 7; // Number of bits used for calculating iPhiRawPlus/Minus
 
 // The length of the masks used for the memories
-constexpr int maskISsize = 6; // Input memories
+constexpr int maskISsize = 9; // Input memories
 constexpr int maskMEsize = 1 << nbits_maxvm; // ME memories
 constexpr int maskTEIsize = 1 << nbits_maxvm; // TEInner memories
 constexpr int maskOLsize = 1 << nbits_maxvmol; // TEInner Overlap memories
 constexpr int maskTEOsize = 1 << nbits_maxvm; // TEOuter memories
 
 // Maximum number of memories, exclusive DISK2S
-constexpr int maxinput = 4;
+constexpr int maxinput = 7;
 
 // Number of bins per page in memories (may change in future)
 constexpr int nmaxbinsperpagelayer = 8;
@@ -325,6 +323,12 @@ inline VMStubME<OutType> createStubME(const InputStub<InType> stub,
 
 	assert(rzfine >= 0);
 
+	int nFinePhiBits = stubME.getFinePhi().length(); // Number of bits used for fine phi
+
+	// Set finephi, i.e. the phi bits within a vme region region
+	auto finephi = iphivmFineBins<InType>(phiCorr,  nbitsvmlayer[Layer-1], nFinePhiBits);
+	stubME.setFinePhi(finephi);
+	  
 	return stubME;
 };
 
@@ -634,13 +638,17 @@ void VMRouter(const BXType bx, BXType& bx_o, const int fineBinTable[], const int
 
 	const typename InputStubMemory<InType>::NEntryT zero(0);
 
+	//Keeps track of input memories that still have stubs to process
+	ap_uint<maskISsize> hasStubs;
+
 	for (int i = 0; i < maskISsize; i++) {
 #pragma HLS UNROLL
 		if (i < maxinput) {
 			nInputs[i] = maskIS[i] != 0 ? inputStubs[i].getEntries(bx) : zero;
 		} else { // For DISK2S
-			nInputs[i] = maskIS[i] != 0 ? inputStubsDisk2S[i-maxinput].getEntries(bx) : zero;
+		        nInputs[i] = maskIS[i] != 0 ? inputStubsDisk2S[i-maxinput].getEntries(bx) : zero;
 		}
+		hasStubs[i] = maskIS[i] && nInputs[i];
 	}
 
 	//Create variables that keep track of which memory address to read and write to
@@ -663,7 +671,7 @@ void VMRouter(const BXType bx, BXType& bx_o, const int fineBinTable[], const int
 		clear3DArray(nvmTE, addrCountTEO);
 	}
 
-
+	
 	/////////////////////////////////////
 	// Main Loop
 	constexpr int maxLoop = kMaxProc;
@@ -679,49 +687,26 @@ void VMRouter(const BXType bx, BXType& bx_o, const int fineBinTable[], const int
 		InputStub<InType> stub;
 		InputStub<DISK2S> stubDisk2S; // Used for disks. TODO: Find a better way to do this...?
 
-		// Read stub from memory in turn.
-		// Reading is ordered as in wiring script to pass testbench
-		if (maskIS[4] && nInputs[4]) { // For DISK2S
-			assert(Disk);
-			stubDisk2S = inputStubsDisk2S[0].read_mem(bx, read_addr);
-			disk2S = true;
-			--nInputs[4];
-			if (nInputs[4] == 0)
-				resetNext = true;
-		} else if (maskIS[0] && nInputs[0]) {
-			stub = inputStubs[0].read_mem(bx, read_addr);
-			--nInputs[0];
-			if (nInputs[0] == 0)
-				resetNext = true;
-		} else if (maskIS[1] && nInputs[1]) {
-			stub = inputStubs[1].read_mem(bx, read_addr);
-			--nInputs[1];
-			if (nInputs[1] == 0)
-				resetNext = true;
-		} else if (maskIS[5] && nInputs[5]) { // For DISK2S
-			assert(Disk);
-			stubDisk2S = inputStubsDisk2S[1].read_mem(bx, read_addr);
-			disk2S = true;
-			negDisk = (Disk) ? true : false;
-			--nInputs[5];
-			if (nInputs[5] == 0)
-				resetNext = true;
-		} else if (maskIS[2] && nInputs[2]) {
-			stub = inputStubs[2].read_mem(bx, read_addr);
-			negDisk = (Disk) ? true : false;
-			--nInputs[2];
-			if (nInputs[2] == 0)
-				resetNext = true;
-		} else if (maskIS[3] && nInputs[3]) {
-			stub = inputStubs[3].read_mem(bx, read_addr);
-			negDisk = (Disk) ? true : false;
-			--nInputs[3];
-			if (nInputs[3] == 0)
-				resetNext = true;
-		} else {
-			noStubsLeft = true;
-		}
+                noStubsLeft = !hasStubs.or_reduce();
 
+                int mem_index = __builtin_ctz(hasStubs);
+		if (!noStubsLeft) {
+		  if (mem_index < maxinput) {
+		    stub = inputStubs[mem_index].read_mem(bx, read_addr);
+		    if (InType == DISKPS) {
+		      negDisk = mem_index >= (maxinput>>1);
+		    } 
+		  } else {
+		    stubDisk2S = inputStubsDisk2S[mem_index - maxinput].read_mem(bx, read_addr);
+		    disk2S = true;
+		    if (InType == DISKPS) {
+		      negDisk = mem_index >= maxinput + ( (mem_index - maxinput)>>1);
+		    } 
+		  }
+		  resetNext = nInputs[mem_index] == 1;
+		  hasStubs[mem_index] = !resetNext;
+		  --nInputs[mem_index];
+		}
 
 		// Increment the read address, or reset it to zero when all stubs in a memory has been read
 		if (resetNext)

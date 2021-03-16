@@ -14,10 +14,11 @@ public:
   enum BitWidths {
     // Bit size for VMStubMEMemory fields
     kVMSMEFineZSize = 3,
+    kVMSMEFinePhiSize = 3,
     kVMSMEBendSize = 3,
     kVMSMEIndexSize = 7,
     // Bit size for full VMStubMEMemory
-    kVMStubMESize = kVMSMEFineZSize + kVMSMEBendSize + kVMSMEIndexSize
+    kVMStubMESize = kVMSMEFinePhiSize + kVMSMEFineZSize + kVMSMEBendSize + kVMSMEIndexSize
   };
 };
 
@@ -28,10 +29,11 @@ public:
   enum BitWidths {
     // Bit size for VMStubMEMemory fields
     kVMSMEFineZSize = 3,
+    kVMSMEFinePhiSize = 3,
     kVMSMEBendSize = 4,
     kVMSMEIndexSize = 7,
     // Bit size for full VMStubMEMemory
-    kVMStubMESize = kVMSMEFineZSize + kVMSMEBendSize + kVMSMEIndexSize
+    kVMStubMESize = kVMSMEFinePhiSize + kVMSMEFineZSize + kVMSMEBendSize + kVMSMEIndexSize
   };
 };
 
@@ -42,10 +44,11 @@ public:
   enum BitWidths {
     // Bit size for VMStubMEMemory fields
     kVMSMEFineZSize = 3,
+    kVMSMEFinePhiSize = 3,
     kVMSMEBendSize = 4,
     kVMSMEIndexSize = 7,
     // Bit size for full VMStubMEMemory
-    kVMStubMESize = kVMSMEFineZSize + kVMSMEBendSize + kVMSMEIndexSize
+    kVMStubMESize = kVMSMEFinePhiSize + kVMSMEFineZSize + kVMSMEBendSize + kVMSMEIndexSize
   };
 };
 
@@ -59,7 +62,9 @@ public:
     // The location of the least significant bit (LSB) and most significant bit (MSB) in the VMStubMEMemory word for different fields
     kVMSMEFineZLSB = 0,
     kVMSMEFineZMSB = kVMSMEFineZLSB + VMStubMEBase<VMSMEType>::kVMSMEFineZSize - 1,
-    kVMSMEBendLSB = kVMSMEFineZMSB + 1,
+    kVMSMEFinePhiLSB = kVMSMEFineZMSB + 1,
+    kVMSMEFinePhiMSB = kVMSMEFinePhiLSB + VMStubMEBase<VMSMEType>::kVMSMEFinePhiSize - 1,
+    kVMSMEBendLSB = kVMSMEFinePhiMSB + 1,
     kVMSMEBendMSB = kVMSMEBendLSB + VMStubMEBase<VMSMEType>::kVMSMEBendSize - 1,
     kVMSMEIndexLSB = kVMSMEBendMSB + 1,
     kVMSMEIndexMSB = kVMSMEIndexLSB + VMStubMEBase<VMSMEType>::kVMSMEIndexSize - 1
@@ -68,6 +73,7 @@ public:
   typedef ap_uint<VMStubMEBase<VMSMEType>::kVMSMEIndexSize> VMSMEID;
   typedef ap_uint<VMStubMEBase<VMSMEType>::kVMSMEBendSize> VMSMEBEND;
   typedef ap_uint<VMStubMEBase<VMSMEType>::kVMSMEFineZSize> VMSMEFINEZ;
+  typedef ap_uint<VMStubMEBase<VMSMEType>::kVMSMEFinePhiSize> VMSMEFINEPHI;
 
   typedef ap_uint<VMStubMEBase<VMSMEType>::kVMStubMESize> VMStubMEData;
 
@@ -76,8 +82,8 @@ public:
     data_(newdata)
   {}
 
-  VMStubME(const VMSMEID id, const VMSMEBEND bend, const VMSMEFINEZ finez):
-    data_( ((id, bend), finez) )
+ VMStubME(const VMSMEID id, const VMSMEBEND bend, const VMSMEFINEPHI finephi, const VMSMEFINEZ finez):
+    data_( (id, bend, finephi, finez) )
   {}
 
   VMStubME():
@@ -105,6 +111,10 @@ public:
     return data_.range(kVMSMEBendMSB,kVMSMEBendLSB);
   }
 
+  VMSMEFINEPHI getFinePhi() const {
+    return data_.range(kVMSMEFinePhiMSB,kVMSMEFinePhiLSB);
+  }
+
   VMSMEFINEZ getFineZ() const {
     return data_.range(kVMSMEFineZMSB,kVMSMEFineZLSB);
   }
@@ -116,6 +126,10 @@ public:
 
   void setBend(const VMSMEBEND bend) {
     data_.range(kVMSMEBendMSB,kVMSMEBendLSB) = bend;
+  }
+
+  void setFinePhi(const VMSMEFINEPHI finephi) {
+    data_.range(kVMSMEFinePhiMSB,kVMSMEFinePhiLSB) = finephi;
   }
 
   void setFineZ(const VMSMEFINEZ finez) {

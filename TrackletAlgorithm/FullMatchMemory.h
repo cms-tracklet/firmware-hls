@@ -133,12 +133,12 @@ public:
     data_(newdata)
   {}
 
-  FullMatch(const FMTCID tcid, const FMTrackletIndex trackletindex, const FMSTUBINDEX stub, const FMPHIRES phires, const FMZRES zres):
-    data_( ((((tcid,trackletindex),stub),phires),zres) )
+  FullMatch(const FMTCID tcid, const FMTrackletIndex trackletindex, const FMSTUBINDEX stub, const FMSTUBR stubr, const FMPHIRES phires, const FMZRES zres):
+    data_( (((((tcid,trackletindex),stub),stubr),phires),zres) )
   {}
 
-  FullMatch(const FMTCID tcid, const FMTrackletIndex trackletindex, const FMSTUBPHIID stubphiid, const FMSTUBID stubid, const FMPHIRES phires, const FMZRES zres):
-	data_( (((((tcid,trackletindex),stubphiid),stubid),phires),zres) )
+  FullMatch(const FMTCID tcid, const FMTrackletIndex trackletindex, const FMSTUBPHIID stubphiid, const FMSTUBID stubid, const FMSTUBR stubr, const FMPHIRES phires, const FMZRES zres):
+	data_( ((((((tcid,trackletindex),stubphiid),stubid),stubr),phires),zres) )
   {}
 
   FullMatch():

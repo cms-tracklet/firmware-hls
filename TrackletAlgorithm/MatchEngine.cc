@@ -58,6 +58,7 @@ void MatchEngine(const BXType bx, BXType& bx_o,
 	// Variables for the projection
 	typename VMProjection<VMPMEType>::VMPID projindex;
 	typename VMProjection<VMPMEType>::VMPFINEZ projfinez;
+	typename VMProjection<VMPMEType>::VMPFINEPHI projfinephi;
 	typename VMProjection<VMPMEType>::VMPRINV projrinv;
 	ap_uint<MEBinsBits> zbin = 0;
 	ap_uint<kNBits_MemAddr> ncmatch = 0;
@@ -91,7 +92,7 @@ void MatchEngine(const BXType bx, BXType& bx_o,
 		// The buffer is not empty when current write index and read index are different
 		// With this you have to assume the buffer will never be absolutely full
 		bool bufferNotEmpty = head_writeindex != tail_readindex;
-
+		
 		// If we have more projections and the buffer is not full we read
 		// next projection and put in buffer if there are stubs in the 
 		// memory the to which the projection points
@@ -147,6 +148,7 @@ void MatchEngine(const BXType bx, BXType& bx_o,
 
 			projindex=data.getIndex();
 			projfinez=data.getFineZ();
+			projfinephi=data.getFinePhi();
 			projrinv=data.getRInv();
 			isPSseed=data.getIsPSSeed();
 
@@ -160,27 +162,34 @@ void MatchEngine(const BXType bx, BXType& bx_o,
 			}
 
 			// Read stub memory and extract data fields
-			auto const stubadd   = zbin.concat(istubtmp);
-			auto const stubdata  = inputStubData.read_mem(bx,stubadd);
-			auto const stubindex = stubdata.getIndex();
-			auto const stubfinez = stubdata.getFineZ();
-			auto const stubbend  = stubdata.getBend();
+			auto const stubadd     = zbin.concat(istubtmp);
+			auto const stubdata    = inputStubData.read_mem(bx,stubadd);
+			auto const stubindex   = stubdata.getIndex();
+			auto const stubfinez   = stubdata.getFineZ();
+			auto const stubfinephi = stubdata.getFinePhi();
+			auto const stubbend    = stubdata.getBend();
 
 			// Calculate fine z position
 			ap_int<VMProjectionBase<PROJECTIONTYPE>::kVMProjFineZSize+1> projfinezadj = projfinez;
 			if (second) projfinezadj = projfinezadj - kZAdjustment;
 			ap_int<VMProjectionBase<PROJECTIONTYPE>::kVMProjFineZSize+1> idz          = stubfinez - projfinezadj;
+			ap_int<VMProjectionBase<PROJECTIONTYPE>::kVMProjFinePhiSize+1> idphi      = projfinephi - stubfinephi;
 
 			// Check if stub z position consistent
 			bool pass = (isPSseed) ? (idz >= ME::StubZPositionBarrelConsistency::kPSMin && idz <= ME::StubZPositionBarrelConsistency::kPSMax)
 								   : (idz >= ME::StubZPositionBarrelConsistency::k2SMin && idz <= ME::StubZPositionBarrelConsistency::k2SMax);
+
+			// Check is stub phi positions are consistent
+			bool passphi = ((idphi<ME::StubPhiPositionBarrelConsistency::kMin)&&(idphi>-ME::StubPhiPositionBarrelConsistency::kMin)) || 
+			  ((idphi>ME::StubPhiPositionBarrelConsistency::kMax) || (idphi<-ME::StubPhiPositionBarrelConsistency::kMax));
+
 
 			// Check if stub bend and proj rinv consistent
 #ifdef DEBUG
 			std::cout << projindex.to_string() << "\t" << stubindex.to_string() << "\t<=== ";
 #endif
 			auto const index=projrinv.concat(stubbend);
-			if (pass && table[index]) {
+			if ( passphi && pass && table[index]) {
 				CandidateMatch cmatch(projindex.concat(stubindex));
 				outputCandidateMatch.write_mem(bx,cmatch,ncmatch);
 				ncmatch++;

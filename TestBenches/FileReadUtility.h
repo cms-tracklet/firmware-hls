@@ -15,12 +15,12 @@
 
 #include "../TrackletAlgorithm/Constants.h"
 
-bool openDataFile(std::ifstream& file_in, const std::string& file_name)
+bool openDataFile(std::ifstream& file_in, const std::string& file_name, bool print_error = true)
 {
   file_in.open(file_name);
 
   bool success = file_in.good();
-  if (not success) {
+  if (not success && print_error) {
     std::cerr << "Open of file " << file_name << " failed with error: ";
     std::cerr << std::strerror(errno);
     std::cerr << std::endl;

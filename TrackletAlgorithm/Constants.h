@@ -10,10 +10,17 @@ inline const int floatToInt(const double x, const double k) {
   return static_cast<int>(x / k + 1.0e-1);
 }
 
+constexpr int kNTEUnits = 5;
+constexpr int kNbitsrzbin = 3;
+constexpr int kNbitsphibin = 3;
+
 constexpr int kMaxStubsFromLink = 256;
 
 constexpr int kTMUX = 18;   //For hourglass project
 constexpr int kMaxProc = kTMUX * 6;
+
+constexpr unsigned int kNbitszfinebintable = 7;
+constexpr unsigned int kNbitsrfinebintable = 4;
 
 // List of module types
 namespace module {
@@ -57,8 +64,8 @@ constexpr double kphi = 7.71867e-06;
 constexpr double kz = 0.0585938;
 
 // tracklet digitization constants
-constexpr double krinv = 1.02916e-06;
-constexpr double kphi0 = 1.54373e-05;
+constexpr double krinv = 1.04549e-06;
+constexpr double kphi0 = 1.56824e-05;
 constexpr double kt = 0.00195312;
 constexpr double kz0 = 0.0585938;
 
@@ -115,5 +122,4 @@ typedef ap_uint<kNBits_BX> BXType;  // temporary definition. need to be revisite
 // FPGA constants 
 constexpr unsigned kBRAMwidth = 36; 
 constexpr int kNBits_DTC = 39; 
-
 #endif

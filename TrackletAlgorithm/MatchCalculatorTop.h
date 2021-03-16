@@ -11,7 +11,7 @@ void MatchCalculatorTop(BXType bx,
                         const AllStubMemory<BARRELPS>*,
                         const AllProjectionMemory<BARRELPS>*,
                         BXType&,
-                        FullMatchMemory<BARREL_FOR_MC> fullmatch[maxFullMatchCopies]
+                        FullMatchMemory<BARREL> fullmatch[maxFullMatchCopies]
                        );
 
 #endif

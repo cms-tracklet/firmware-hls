@@ -90,10 +90,14 @@ namespace ME {
 		kVMMENStubsMSB = kVMMENStubsLSB + VMStubMEMemory<MODULETYPE,NBITBIN>::kNBitDataAddr - 1
 	};
 	enum StubZPositionBarrelConsistency {
-		kPSMin = -2,
-		kPSMax = 2,
+		kPSMin = -1,
+		kPSMax = 1,
 		k2SMin = -5,
 		k2SMax = 5
+	};
+	enum StubPhiPositionBarrelConsistency {
+		kMin = 3,
+		kMax = 5
 	};
 }
 constexpr unsigned int kZAdjustment = 8;

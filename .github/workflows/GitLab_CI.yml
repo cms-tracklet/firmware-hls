@@ -3,7 +3,7 @@ name: Mirror and run GitLab CI
 on: # Controls when the action will run.
   workflow_dispatch:
   push: # Please add your branch down here if wanted. A build will be triggerd for each push.
-    branches: [HDLTopSim]
+    branches: [HDLTopSim, merge_for_mc]
   pull_request:
     branches: [master, HDLTopSim]
     

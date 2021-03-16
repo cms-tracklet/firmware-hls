@@ -5,7 +5,7 @@ void MatchCalculatorTop(BXType bx,
                         const AllStubMemory<BARRELPS>* allstub,
                         const AllProjectionMemory<BARRELPS>* allproj,
                         BXType& bx_o,
-                        FullMatchMemory<BARREL_FOR_MC> fullmatch[maxFullMatchCopies]
+                        FullMatchMemory<BARREL> fullmatch[maxFullMatchCopies]
                         )
 {
  #pragma HLS inline off
@@ -24,7 +24,7 @@ void MatchCalculatorTop(BXType bx,
   const auto LAYER  = TF::L3;
   const auto DISK   = TF::D1;
   const auto PHISEC = MC::C;
-  MC_L3PHIC: MatchCalculator<BARRELPS, BARRELPS, BARREL_FOR_MC, maxMatchCopies, maxFullMatchCopies, LAYER, DISK, PHISEC>
+  MC_L3PHIC: MatchCalculator<BARRELPS, BARRELPS, BARREL, maxMatchCopies, maxFullMatchCopies, LAYER, DISK, PHISEC>
     (
       bx,
       match,

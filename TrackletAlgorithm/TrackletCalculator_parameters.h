@@ -58,13 +58,13 @@ template<> constexpr uint16_t ASInnerMask<TF::L1L2, TC::G>() {
   return 0x0000;
 }
 template<> constexpr uint16_t ASOuterMask<TF::L1L2, TC::G>() {
-  return 0x1FEE;
+  return 0x1FDC;
 }
 template<> constexpr uint32_t TPROJMaskBarrel<TF::L1L2, TC::G>() {
-  return 0xF666000;
+  return 0xEE66000;
 }
 template<> constexpr uint32_t TPROJMaskDisk<TF::L1L2, TC::G>() {
-  return 0xEEEE;
+  return 0xFFFF;
 }
 
 // magic numbers for TC_L3L4E

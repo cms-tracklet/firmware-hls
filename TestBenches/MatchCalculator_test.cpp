@@ -29,7 +29,7 @@ int main() {
   static AllProjectionMemory<BARRELPS>  allproj;
 
   // declare output memory array to be filled by hls simulation
-  static FullMatchMemory<BARREL_FOR_MC> fullmatch[maxFullMatchCopies];
+  static FullMatchMemory<BARREL> fullmatch[maxFullMatchCopies];
 
   // read in input files
   ifstream fin_as;
@@ -43,7 +43,7 @@ int main() {
   ifstream fin_cm7;
   ifstream fin_cm8;
 
-  if (not openDataFile(fin_as,"MC/MC_L3PHIC/AllStubs_AS_L3PHICn6_04.dat")) return -1;
+  if (not openDataFile(fin_as,"MC/MC_L3PHIC/AllStubs_AS_L3PHICn1_04.dat")) return -1;
   if (not openDataFile(fin_ap,"MC/MC_L3PHIC/AllProj_AP_L3PHIC_04.dat")) return -1;
   if (not openDataFile(fin_cm1,"MC/MC_L3PHIC/CandidateMatches_CM_L3PHIC17_04.dat")) return -1;
   if (not openDataFile(fin_cm2,"MC/MC_L3PHIC/CandidateMatches_CM_L3PHIC18_04.dat")) return -1;
@@ -109,21 +109,21 @@ int main() {
 
     // compare the computed outputs with the expected ones 
     //std::cout << "FM: L1L2 seeding" << std::endl;
-    err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[0], fout_fm1, ievt, "FullMatch", truncation);
+    err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[0], fout_fm1, ievt, "FullMatch", truncation);
     //std::cout << "FM: L2L3 seeding" << std::endl;
-    //err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[1], fout_fm2, ievt, "FullMatch", truncation);
+    //err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[1], fout_fm2, ievt, "FullMatch", truncation);
     //std::cout << "FM: L3L4 seeding" << std::endl;
-    //err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[2], fout_fm3, ievt, "FullMatch", truncation);
+    //err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[2], fout_fm3, ievt, "FullMatch", truncation);
     //std::cout << "FM: L5L6 seeding" << std::endl;
-    err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[3], fout_fm4, ievt, "FullMatch", truncation);
+    err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[3], fout_fm4, ievt, "FullMatch", truncation);
     //std::cout << "FM: D1D2 seeding" << std::endl;
-    //err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[4], fout_fm5, ievt, "FullMatch", truncation);
+    //err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[4], fout_fm5, ievt, "FullMatch", truncation);
     //std::cout << "FM: D3D4 seeding" << std::endl;
-    //err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[5], fout_fm6, ievt, "FullMatch", truncation);
+    //err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[5], fout_fm6, ievt, "FullMatch", truncation);
     //std::cout << "FM: L1D1 seeding" << std::endl;
-    //err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[6], fout_fm7, ievt, "FullMatch", truncation);
+    //err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[6], fout_fm7, ievt, "FullMatch", truncation);
     //std::cout << "FM: L2D1 seeding" << std::endl;
-    //err_count += compareMemWithFile<FullMatchMemory<BARREL_FOR_MC> >(fullmatch[7], fout_fm8, ievt, "FullMatch", truncation);
+    //err_count += compareMemWithFile<FullMatchMemory<BARREL> >(fullmatch[7], fout_fm8, ievt, "FullMatch", truncation);
 
   }  // end of event loop
   
